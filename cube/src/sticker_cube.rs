@@ -85,6 +85,17 @@ impl Cube {
     corner4(RFU, FLU, LBU, BRU, &mut self.corners);
     corner4(FUR, LUF, BUL, RUB, &mut self.corners);
   }
+
+  pub fn do_d(&mut self) {
+    use self::EdgePos::*;
+    edge4(DF, DR, DB, DL, &mut self.edges);
+    edge4(FD, RD, BD, LD, &mut self.edges);
+
+    use self::CornerPos::*;
+    corner4(DFR, DRB, DBL, DLF, &mut self.corners);
+    corner4(FRD, RBD, BLD, LFD, &mut self.corners);
+    corner4(RDF, BDR, LDB, FDL, &mut self.corners);
+  }
 }
 
 fn edge4(
@@ -292,6 +303,27 @@ mod tests {
         corners: [
           U, B, R, U, R, F, U, F, L, U, L, B, D, F, R, D, L, F, D, B, L, D, R,
           B
+        ],
+        centres: [U, R, F, D, B, L]
+      },
+      c
+    );
+  }
+
+  #[test]
+  fn d_move() {
+    let mut c = Cube::solved();
+    c.do_d();
+
+    assert_eq!(
+      Cube {
+        edges: [
+          U, F, U, L, U, B, U, R, D, L, D, B, D, R, D, F, F, R, F, L, B, L, B,
+          R
+        ],
+        corners: [
+          U, R, F, U, F, L, U, L, B, U, B, R, D, L, F, D, B, L, D, R, B, D, F,
+          R
         ],
         centres: [U, R, F, D, B, L]
       },
