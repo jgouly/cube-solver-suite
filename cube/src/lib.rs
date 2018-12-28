@@ -1,5 +1,7 @@
+pub mod sticker_cube;
+
 /// Represents a face of the cube.
-#[derive(Debug)]
+#[derive(Clone, Copy, Debug)]
 pub enum Face {
   U,
   D,
