@@ -4,6 +4,7 @@ use crate::Face;
 /// sticker colours. This representation includes centre pieces so can
 /// represent slice turns and rotations.
 #[derive(Clone, Copy, Debug)]
+#[cfg_attr(test, derive(PartialEq))]
 pub struct Cube {
   pub edges: [Face; 24],
   pub corners: [Face; 24],
@@ -73,6 +74,51 @@ impl Cube {
       centres,
     }
   }
+
+  pub fn do_u(&mut self) {
+    use self::EdgePos::*;
+    edge4(UF, UL, UB, UR, &mut self.edges);
+    edge4(FU, LU, BU, RU, &mut self.edges);
+
+    use self::CornerPos::*;
+    corner4(URF, UFL, ULB, UBR, &mut self.corners);
+    corner4(RFU, FLU, LBU, BRU, &mut self.corners);
+    corner4(FUR, LUF, BUL, RUB, &mut self.corners);
+  }
+}
+
+fn edge4(
+  e1: EdgePos,
+  e2: EdgePos,
+  e3: EdgePos,
+  e4: EdgePos,
+  edges: &mut [Face; 24],
+) {
+  let oe1 = edges[e1 as usize];
+  let oe2 = edges[e2 as usize];
+  let oe3 = edges[e3 as usize];
+  let oe4 = edges[e4 as usize];
+  edges[e1 as usize] = oe4;
+  edges[e2 as usize] = oe1;
+  edges[e3 as usize] = oe2;
+  edges[e4 as usize] = oe3;
+}
+
+fn corner4(
+  e1: CornerPos,
+  e2: CornerPos,
+  e3: CornerPos,
+  e4: CornerPos,
+  corners: &mut [Face; 24],
+) {
+  let oe1 = corners[e1 as usize];
+  let oe2 = corners[e2 as usize];
+  let oe3 = corners[e3 as usize];
+  let oe4 = corners[e4 as usize];
+  corners[e1 as usize] = oe4;
+  corners[e2 as usize] = oe1;
+  corners[e3 as usize] = oe2;
+  corners[e4 as usize] = oe3;
 }
 
 /// Represents a particular edge position on a cube.
@@ -149,6 +195,7 @@ pub enum CentrePos {
 
 #[cfg(test)]
 mod tests {
+  use super::Face::*;
   use super::*;
 
   #[test]
@@ -229,5 +276,26 @@ mod tests {
     assert_centre!(D);
     assert_centre!(B);
     assert_centre!(L);
+  }
+
+  #[test]
+  fn u_move() {
+    let mut c = Cube::solved();
+    c.do_u();
+
+    assert_eq!(
+      Cube {
+        edges: [
+          U, R, U, F, U, L, U, B, D, F, D, L, D, B, D, R, F, R, F, L, B, L, B,
+          R
+        ],
+        corners: [
+          U, B, R, U, R, F, U, F, L, U, L, B, D, F, R, D, L, F, D, B, L, D, R,
+          B
+        ],
+        centres: [U, R, F, D, B, L]
+      },
+      c
+    );
   }
 }
