@@ -14,61 +14,17 @@ pub struct Cube {
 impl Cube {
   /// Creates a solved cube.
   pub fn solved() -> Cube {
+    use crate::Face::*;
+
     let edges = [
-      Face::U,
-      Face::F,
-      Face::U,
-      Face::L,
-      Face::U,
-      Face::B,
-      Face::U,
-      Face::R,
-      Face::D,
-      Face::F,
-      Face::D,
-      Face::L,
-      Face::D,
-      Face::B,
-      Face::D,
-      Face::R,
-      Face::F,
-      Face::R,
-      Face::F,
-      Face::L,
-      Face::B,
-      Face::L,
-      Face::B,
-      Face::R,
+      U, F, U, L, U, B, U, R, D, F, D, L, D, B, D, R, F, R, F, L, B, L, B, R,
     ];
 
     let corners = [
-      Face::U,
-      Face::R,
-      Face::F,
-      Face::U,
-      Face::F,
-      Face::L,
-      Face::U,
-      Face::L,
-      Face::B,
-      Face::U,
-      Face::B,
-      Face::R,
-      Face::D,
-      Face::F,
-      Face::R,
-      Face::D,
-      Face::L,
-      Face::F,
-      Face::D,
-      Face::B,
-      Face::L,
-      Face::D,
-      Face::R,
-      Face::B,
+      U, R, F, U, F, L, U, L, B, U, B, R, D, F, R, D, L, F, D, B, L, D, R, B,
     ];
 
-    let centres = [Face::U, Face::R, Face::F, Face::D, Face::B, Face::L];
+    let centres = [U, R, F, D, B, L];
     Cube {
       edges,
       corners,
