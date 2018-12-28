@@ -12,6 +12,7 @@ pub struct Cube {
 }
 
 impl Cube {
+  /// Creates a solved cube.
   pub fn solved() -> Cube {
     let edges = [
       Face::U,
@@ -95,6 +96,28 @@ impl Cube {
     corner4(DFR, DRB, DBL, DLF, &mut self.corners);
     corner4(FRD, RBD, BLD, LFD, &mut self.corners);
     corner4(RDF, BDR, LDB, FDL, &mut self.corners);
+  }
+
+  pub fn do_r(&mut self) {
+    use self::EdgePos::*;
+    edge4(UR, BR, DR, FR, &mut self.edges);
+    edge4(RU, RB, RD, RF, &mut self.edges);
+
+    use self::CornerPos::*;
+    corner4(URF, BRU, DRB, FRD, &mut self.corners);
+    corner4(RFU, RUB, RBD, RDF, &mut self.corners);
+    corner4(FUR, UBR, BDR, DFR, &mut self.corners);
+  }
+
+  pub fn do_l(&mut self) {
+    use self::EdgePos::*;
+    edge4(UL, FL, DL, BL, &mut self.edges);
+    edge4(LU, LF, LD, LB, &mut self.edges);
+
+    use self::CornerPos::*;
+    corner4(UFL, FDL, DBL, BUL, &mut self.corners);
+    corner4(FLU, DLF, BLD, ULB, &mut self.corners);
+    corner4(LUF, LFD, LDB, LBU, &mut self.corners);
   }
 }
 
@@ -324,6 +347,48 @@ mod tests {
         corners: [
           U, R, F, U, F, L, U, L, B, U, B, R, D, L, F, D, B, L, D, R, B, D, F,
           R
+        ],
+        centres: [U, R, F, D, B, L]
+      },
+      c
+    );
+  }
+
+  #[test]
+  fn r_move() {
+    let mut c = Cube::solved();
+    c.do_r();
+
+    assert_eq!(
+      Cube {
+        edges: [
+          U, F, U, L, U, B, F, R, D, F, D, L, D, B, B, R, D, R, F, L, B, L, U,
+          R
+        ],
+        corners: [
+          F, R, D, U, F, L, U, L, B, F, U, R, B, D, R, D, L, F, D, B, L, B, R,
+          U
+        ],
+        centres: [U, R, F, D, B, L]
+      },
+      c
+    );
+  }
+
+  #[test]
+  fn l_move() {
+    let mut c = Cube::solved();
+    c.do_l();
+
+    assert_eq!(
+      Cube {
+        edges: [
+          U, F, B, L, U, B, U, R, D, F, F, L, D, B, D, R, F, R, U, L, D, L, B,
+          R
+        ],
+        corners: [
+          U, R, F, B, U, L, B, L, D, U, B, R, D, F, R, F, L, U, F, D, L, D, R,
+          B
         ],
         centres: [U, R, F, D, B, L]
       },
