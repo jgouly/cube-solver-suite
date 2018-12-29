@@ -1,4 +1,4 @@
-use crate::Face;
+use crate::{Face, Move};
 
 /// Represents a 3x3x3 cube using a representation that is similar to storing
 /// sticker colours. This representation includes centre pieces so can
@@ -32,7 +32,30 @@ impl Cube {
     }
   }
 
-  pub fn do_u(&mut self) {
+  /// Do the move `m` on the cube.
+  pub fn do_move(&mut self, m: Move) {
+    let amt = m.amount();
+    for _ in 0..amt {
+      match &m {
+        Move::U(_) => self.do_u(),
+        Move::D(_) => self.do_d(),
+        Move::F(_) => self.do_f(),
+        Move::B(_) => self.do_b(),
+        Move::R(_) => self.do_r(),
+        Move::L(_) => self.do_l(),
+        Move::M(_) => self.do_m(),
+      }
+    }
+  }
+
+  /// Do all the moves in the slice `moves` on the cube.
+  pub fn do_moves(&mut self, moves: &[Move]) {
+    for &m in moves {
+      self.do_move(m);
+    }
+  }
+
+  fn do_u(&mut self) {
     use self::EdgePos::*;
     edge4(UF, UL, UB, UR, &mut self.edges);
     edge4(FU, LU, BU, RU, &mut self.edges);
@@ -43,7 +66,7 @@ impl Cube {
     corner4(FUR, LUF, BUL, RUB, &mut self.corners);
   }
 
-  pub fn do_d(&mut self) {
+  fn do_d(&mut self) {
     use self::EdgePos::*;
     edge4(DF, DR, DB, DL, &mut self.edges);
     edge4(FD, RD, BD, LD, &mut self.edges);
@@ -54,7 +77,7 @@ impl Cube {
     corner4(RDF, BDR, LDB, FDL, &mut self.corners);
   }
 
-  pub fn do_r(&mut self) {
+  fn do_r(&mut self) {
     use self::EdgePos::*;
     edge4(UR, BR, DR, FR, &mut self.edges);
     edge4(RU, RB, RD, RF, &mut self.edges);
@@ -65,7 +88,7 @@ impl Cube {
     corner4(FUR, UBR, BDR, DFR, &mut self.corners);
   }
 
-  pub fn do_l(&mut self) {
+  fn do_l(&mut self) {
     use self::EdgePos::*;
     edge4(UL, FL, DL, BL, &mut self.edges);
     edge4(LU, LF, LD, LB, &mut self.edges);
@@ -76,7 +99,7 @@ impl Cube {
     corner4(LUF, LFD, LDB, LBU, &mut self.corners);
   }
 
-  pub fn do_f(&mut self) {
+  fn do_f(&mut self) {
     use self::EdgePos::*;
     edge4(UF, RF, DF, LF, &mut self.edges);
     edge4(FU, FR, FD, FL, &mut self.edges);
@@ -87,7 +110,7 @@ impl Cube {
     corner4(FUR, FRD, FDL, FLU, &mut self.corners);
   }
 
-  pub fn do_b(&mut self) {
+  fn do_b(&mut self) {
     use self::EdgePos::*;
     edge4(UB, LB, DB, RB, &mut self.edges);
     edge4(BU, BL, BD, BR, &mut self.edges);
@@ -98,7 +121,7 @@ impl Cube {
     corner4(RUB, ULB, LDB, DRB, &mut self.corners);
   }
 
-  pub fn do_m(&mut self) {
+  fn do_m(&mut self) {
     use self::EdgePos::*;
     edge4(UF, FD, DB, BU, &mut self.edges);
     edge4(FU, DF, BD, UB, &mut self.edges);
@@ -501,6 +524,58 @@ mod tests {
           B
         ],
         centres: [B, R, U, F, D, L]
+      },
+      c
+    );
+  }
+
+  #[test]
+  fn moves() {
+    let mut c2 = Cube::solved();
+    c2.do_u();
+    c2.do_u();
+    c2.do_u();
+
+    let mut c = Cube::solved();
+    c.do_moves(&[Move::U(3)]);
+
+    assert_eq!(c2, c);
+
+    c.do_moves(&[Move::U(1)]);
+    assert_eq!(Cube::solved(), c);
+  }
+
+  #[test]
+  fn t_perm() {
+    let mut c = Cube::solved();
+    {
+      use crate::Move::*;
+      // Optimal T perm: U F2 U' F2 D R2 B2 U B2 D' R2
+      c.do_moves(&[
+        U(1),
+        F(2),
+        U(3),
+        F(2),
+        D(1),
+        R(2),
+        B(2),
+        U(1),
+        B(2),
+        D(3),
+        R(2),
+      ]);
+    }
+    assert_eq!(
+      Cube {
+        edges: [
+          U, F, U, R, U, B, U, L, D, F, D, L, D, B, D, R, F, R, F, L, B, L, B,
+          R
+        ],
+        corners: [
+          U, B, R, U, F, L, U, L, B, U, R, F, D, F, R, D, L, F, D, B, L, D, R,
+          B
+        ],
+        centres: [U, R, F, D, B, L]
       },
       c
     );
