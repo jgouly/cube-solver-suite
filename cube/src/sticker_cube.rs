@@ -109,6 +109,20 @@ impl Cube {
     self.centres[CentrePos::B as usize] = centres[CentrePos::D as usize];
     self.centres[CentrePos::U as usize] = centres[CentrePos::B as usize];
   }
+
+  /// Find the `EdgePos` for a particular edge piece.
+  pub fn find_edge(&self, f1: Face, f2: Face) -> EdgePos {
+    let edge_pos = EdgePos::natural_order();
+    for (e, ep) in self.edges.chunks(2).zip(edge_pos.chunks(2)) {
+      if (e[0], e[1]) == (f1, f2) {
+        return ep[0];
+      }
+      if (e[0], e[1]) == (f2, f1) {
+        return ep[1];
+      }
+    }
+    unreachable!("{:?}{:?} not found", f1, f2)
+  }
 }
 
 fn edge4(
@@ -148,6 +162,7 @@ fn corner4(
 /// Represents a particular edge position on a cube.
 /// Note: This represents a position, not a particular piece.
 #[derive(Clone, Copy, Debug)]
+#[cfg_attr(test, derive(PartialEq))]
 pub enum EdgePos {
   UF,
   FU,
@@ -173,6 +188,17 @@ pub enum EdgePos {
   LB,
   BR,
   RB,
+}
+
+impl EdgePos {
+  pub fn natural_order() -> &'static [EdgePos; 24] {
+    use self::EdgePos::*;
+    static EDGES: [EdgePos; 24] = [
+      UF, FU, UL, LU, UB, BU, UR, RU, DF, FD, DL, LD, DB, BD, DR, RD, FR, RF,
+      FL, LF, BL, LB, BR, RB,
+    ];
+    return &EDGES;
+  }
 }
 
 /// Represents a particular corner position on a cube.
@@ -447,5 +473,28 @@ mod tests {
       },
       c
     );
+  }
+
+  #[test]
+  fn find_edge() {
+    let c = Cube::solved();
+
+    assert_eq!(EdgePos::UF, c.find_edge(Face::U, Face::F));
+    assert_eq!(EdgePos::FU, c.find_edge(Face::F, Face::U));
+
+    assert_eq!(EdgePos::FR, c.find_edge(Face::F, Face::R));
+    assert_eq!(EdgePos::RF, c.find_edge(Face::R, Face::F));
+
+    let mut c = Cube::solved();
+    c.do_u();
+
+    assert_eq!(EdgePos::UF, c.find_edge(Face::U, Face::R));
+    assert_eq!(EdgePos::FU, c.find_edge(Face::R, Face::U));
+
+    assert_eq!(EdgePos::UL, c.find_edge(Face::U, Face::F));
+    assert_eq!(EdgePos::LU, c.find_edge(Face::F, Face::U));
+
+    assert_eq!(EdgePos::FR, c.find_edge(Face::F, Face::R));
+    assert_eq!(EdgePos::RF, c.find_edge(Face::R, Face::F));
   }
 }
