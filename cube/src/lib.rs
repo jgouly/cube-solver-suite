@@ -1,5 +1,8 @@
 pub mod sticker_cube;
 
+pub use crate::sticker_cube::CentrePos;
+pub use crate::sticker_cube::Cube;
+
 /// Represents a face of the cube.
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Face {
