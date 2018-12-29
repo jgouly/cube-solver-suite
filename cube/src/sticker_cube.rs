@@ -507,6 +507,17 @@ mod tests {
   }
 
   #[test]
+  fn natural_order() {
+    for (i, &e) in EdgePos::natural_order().iter().enumerate() {
+      assert_eq!(i, e as usize);
+    }
+
+    for (i, &c) in CornerPos::natural_order().iter().enumerate() {
+      assert_eq!(i, c as usize);
+    }
+  }
+
+  #[test]
   fn find_edge() {
     let c = Cube::solved();
 
