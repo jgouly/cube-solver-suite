@@ -117,11 +117,30 @@ impl Cube {
       if (e[0], e[1]) == (f1, f2) {
         return ep[0];
       }
-      if (e[0], e[1]) == (f2, f1) {
+      if (e[1], e[0]) == (f1, f2) {
         return ep[1];
       }
     }
     unreachable!("{:?}{:?} not found", f1, f2)
+  }
+
+  /// Find the `CornerPos` for a particular corner piece.
+  pub fn find_corner(&self, f1: Face, f2: Face, f3: Face) -> CornerPos {
+    let corner_pos = CornerPos::natural_order();
+    for (c, cp) in self.corners.chunks(3).zip(corner_pos.chunks(3)) {
+      if (c[0], c[1], c[2]) == (f1, f2, f3) {
+        return cp[0];
+      }
+
+      if (c[1], c[2], c[0]) == (f1, f2, f3) {
+        return cp[1];
+      }
+
+      if (c[2], c[0], c[1]) == (f1, f2, f3) {
+        return cp[2];
+      }
+    }
+    unreachable!("{:?}{:?}{:?} not found", f1, f2, f3)
   }
 }
 
@@ -204,6 +223,7 @@ impl EdgePos {
 /// Represents a particular corner position on a cube.
 /// Note: This represents a position, not a particular piece.
 #[derive(Clone, Copy, Debug)]
+#[cfg_attr(test, derive(PartialEq))]
 pub enum CornerPos {
   URF,
   RFU,
@@ -229,6 +249,17 @@ pub enum CornerPos {
   DRB,
   RBD,
   BDR,
+}
+
+impl CornerPos {
+  pub fn natural_order() -> &'static [CornerPos; 24] {
+    use self::CornerPos::*;
+    static CORNERS: [CornerPos; 24] = [
+      URF, RFU, FUR, UFL, FLU, LUF, ULB, LBU, BUL, UBR, BRU, RUB, DFR, FRD,
+      RDF, DLF, LFD, FDL, DBL, BLD, LDB, DRB, RBD, BDR,
+    ];
+    return &CORNERS;
+  }
 }
 
 /// Represents a particular centre position on a cube.
@@ -496,5 +527,25 @@ mod tests {
 
     assert_eq!(EdgePos::FR, c.find_edge(Face::F, Face::R));
     assert_eq!(EdgePos::RF, c.find_edge(Face::R, Face::F));
+  }
+
+  #[test]
+  fn find_corner() {
+    let c = Cube::solved();
+
+    assert_eq!(CornerPos::URF, c.find_corner(Face::U, Face::R, Face::F));
+    assert_eq!(CornerPos::RFU, c.find_corner(Face::R, Face::F, Face::U));
+    assert_eq!(CornerPos::FUR, c.find_corner(Face::F, Face::U, Face::R));
+
+    assert_eq!(CornerPos::DRB, c.find_corner(Face::D, Face::R, Face::B));
+    assert_eq!(CornerPos::RBD, c.find_corner(Face::R, Face::B, Face::D));
+    assert_eq!(CornerPos::BDR, c.find_corner(Face::B, Face::D, Face::R));
+
+    let mut c = Cube::solved();
+    c.do_r();
+
+    assert_eq!(CornerPos::URF, c.find_corner(Face::F, Face::R, Face::D));
+    assert_eq!(CornerPos::RFU, c.find_corner(Face::R, Face::D, Face::F));
+    assert_eq!(CornerPos::FUR, c.find_corner(Face::D, Face::F, Face::R));
   }
 }
