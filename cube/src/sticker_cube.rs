@@ -32,6 +32,26 @@ impl Cube {
     }
   }
 
+  /// Creates a cube in an invalid state.
+  pub fn invalid() -> Cube {
+    use crate::Face::*;
+
+    let edges = [U; 24];
+    let corners = [U; 24];
+    let centres = [U; 6];
+    Cube {
+      edges,
+      corners,
+      centres,
+    }
+  }
+
+  /// Solve the centres to their default state.
+  pub fn solve_centres(&mut self) {
+    use crate::Face::*;
+    self.centres = [U, R, F, D, B, L];
+  }
+
   /// Do the move `m` on the cube.
   pub fn do_move(&mut self, m: Move) {
     let amt = m.amount();
