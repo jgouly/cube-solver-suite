@@ -1,5 +1,26 @@
 use cube::{Cube, Face};
 
+/// An `Index` represents a set of pieces of a `Cube`.
+pub trait Index {
+  /// The number of elements in this `Index`.
+  const NUM_ELEMS: usize;
+
+  /// A conversion from a `Cube` into a `u32`.
+  fn from_cube(c: &Cube) -> u32;
+
+  /// A conversion from a `u32` into a `Cube`.
+  fn from_index(i: u32) -> Cube;
+}
+
+/// Iterate over an `Index`'s elements, asserting that `from_index` and
+/// `from_cube` match.
+pub fn exhaustive_index_check<I: Index>() {
+  for i in 0..I::NUM_ELEMS {
+    let c = I::from_index(i as u32);
+    assert_eq!(i, I::from_cube(&c) as usize);
+  }
+}
+
 /// Create an index for a list of edges.
 pub fn generic_edge_index(cube: &Cube, edge_faces: &[(Face, Face)]) -> u32 {
   let mut edges = Vec::with_capacity(edge_faces.len());
@@ -75,10 +96,37 @@ pub fn generic_edge_index_decode(
 }
 
 #[cfg(test)]
+pub mod example {
+  use super::*;
+
+  // Simple Index that tracks UF only.
+  pub struct UF;
+
+  impl Index for UF {
+    const NUM_ELEMS: usize = 24;
+    fn from_cube(c: &Cube) -> u32 {
+      c.find_edge(Face::U, Face::F) as u32
+    }
+
+    fn from_index(i: u32) -> Cube {
+      let mut c = Cube::invalid();
+      c.edges[i as usize] = Face::U;
+      c.edges[i as usize ^ 1] = Face::F;
+      c
+    }
+  }
+}
+
+#[cfg(test)]
 mod tests {
   use super::*;
   use cube::sticker_cube::EdgePos;
   use cube::Move;
+
+  #[test]
+  fn exhaustive_uf() {
+    exhaustive_index_check::<example::UF>();
+  }
 
   #[test]
   fn generic_edge() {
