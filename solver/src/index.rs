@@ -3,7 +3,7 @@ use cube::{Cube, Face};
 /// An `Index` represents a set of pieces of a `Cube`.
 pub trait Index {
   /// The number of elements in this `Index`.
-  const NUM_ELEMS: usize;
+  const NUM_ELEMS: u32;
 
   /// A conversion from a `Cube` into a `u32`.
   fn from_cube(c: &Cube) -> u32;
@@ -16,8 +16,8 @@ pub trait Index {
 /// `from_cube` match.
 pub fn exhaustive_index_check<I: Index>() {
   for i in 0..I::NUM_ELEMS {
-    let c = I::from_index(i as u32);
-    assert_eq!(i, I::from_cube(&c) as usize);
+    let c = I::from_index(i);
+    assert_eq!(i, I::from_cube(&c));
   }
 }
 
@@ -103,7 +103,7 @@ pub mod example {
   pub struct UF;
 
   impl Index for UF {
-    const NUM_ELEMS: usize = 24;
+    const NUM_ELEMS: u32 = 24;
     fn from_cube(c: &Cube) -> u32 {
       c.find_edge(Face::U, Face::F) as u32
     }
