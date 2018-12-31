@@ -1,18 +1,12 @@
-use cube::{CentrePos, Cube};
+use cube::{Cube, Face};
 
 /// Create an index for a list of edges.
-pub fn generic_edge_index(
-  cube: &Cube,
-  edge_faces: &[(CentrePos, CentrePos)],
-) -> u32 {
+pub fn generic_edge_index(cube: &Cube, edge_faces: &[(Face, Face)]) -> u32 {
   let mut edges = Vec::with_capacity(edge_faces.len());
 
   // Collect the edges.
   for &e in edge_faces {
-    edges.push(
-      cube.find_edge(cube.centres[e.0 as usize], cube.centres[e.1 as usize])
-        as u32,
-    );
+    edges.push(cube.find_edge(e.0, e.1) as u32);
   }
 
   // Modify the edge values such that:
@@ -49,7 +43,7 @@ pub fn generic_edge_index(
 pub fn generic_edge_index_decode(
   cube: &mut Cube,
   index: u32,
-  edge_faces: &[(CentrePos, CentrePos)],
+  edge_faces: &[(Face, Face)],
 ) {
   let num = edge_faces.len();
   let mut edge_div = 24 - ((num as u32 - 1) * 2);
@@ -75,8 +69,8 @@ pub fn generic_edge_index_decode(
 
   // Fill in the cube's edges.
   for i in 0..edges.len() {
-    cube.edges[edges[i] as usize] = cube.centres[edge_faces[i].0 as usize];
-    cube.edges[edges[i] as usize ^ 1] = cube.centres[edge_faces[i].1 as usize];
+    cube.edges[edges[i] as usize] = edge_faces[i].0;
+    cube.edges[edges[i] as usize ^ 1] = edge_faces[i].1;
   }
 }
 
@@ -84,24 +78,22 @@ pub fn generic_edge_index_decode(
 mod tests {
   use super::*;
   use cube::sticker_cube::EdgePos;
-  use cube::{Face, Move};
+  use cube::Move;
 
   #[test]
   fn generic_edge() {
     let c = Cube::solved();
-    let uf_index = generic_edge_index(&c, &[(CentrePos::U, CentrePos::F)]);
+    let uf_index = generic_edge_index(&c, &[(Face::U, Face::F)]);
     assert_eq!(0, uf_index);
 
-    let ul_index = generic_edge_index(&c, &[(CentrePos::U, CentrePos::L)]);
+    let ul_index = generic_edge_index(&c, &[(Face::U, Face::L)]);
     assert_eq!(2, ul_index);
 
-    let lu_index = generic_edge_index(&c, &[(CentrePos::L, CentrePos::U)]);
+    let lu_index = generic_edge_index(&c, &[(Face::L, Face::U)]);
     assert_eq!(3, lu_index);
 
-    let uful_index = generic_edge_index(
-      &c,
-      &[(CentrePos::U, CentrePos::F), (CentrePos::U, CentrePos::L)],
-    );
+    let uful_index =
+      generic_edge_index(&c, &[(Face::U, Face::F), (Face::U, Face::L)]);
     assert_eq!(0, uful_index);
 
     {
@@ -109,10 +101,8 @@ mod tests {
       // Flip UL, L U' F U
       c.do_moves(&[Move::L(1), Move::U(3), Move::F(1), Move::U(1)]);
 
-      let uful_index = generic_edge_index(
-        &c,
-        &[(CentrePos::U, CentrePos::F), (CentrePos::U, CentrePos::L)],
-      );
+      let uful_index =
+        generic_edge_index(&c, &[(Face::U, Face::F), (Face::U, Face::L)]);
       assert_eq!(1, uful_index);
     }
 
@@ -121,10 +111,8 @@ mod tests {
       // Flip UF, F U' R U
       c.do_moves(&[Move::F(1), Move::U(3), Move::R(1), Move::U(1)]);
 
-      let uful_index = generic_edge_index(
-        &c,
-        &[(CentrePos::U, CentrePos::F), (CentrePos::U, CentrePos::L)],
-      );
+      let uful_index =
+        generic_edge_index(&c, &[(Face::U, Face::F), (Face::U, Face::L)]);
 
       // UF at FU = 1 * 22
       // UL at UL = 0
@@ -136,10 +124,8 @@ mod tests {
       // Flip UF, F U' R U
       c.do_moves(&[Move::F(1), Move::U(3), Move::R(1), Move::U(1)]);
 
-      let uluf_index = generic_edge_index(
-        &c,
-        &[(CentrePos::U, CentrePos::L), (CentrePos::U, CentrePos::F)],
-      );
+      let uluf_index =
+        generic_edge_index(&c, &[(Face::U, Face::L), (Face::U, Face::F)]);
 
       // UL at UL = 2 * 22
       // UF at FU = 1
@@ -152,7 +138,7 @@ mod tests {
     {
       let mut c = Cube::invalid();
       c.solve_centres();
-      generic_edge_index_decode(&mut c, 0, &[(CentrePos::U, CentrePos::F)]);
+      generic_edge_index_decode(&mut c, 0, &[(Face::U, Face::F)]);
       assert_eq!(Face::U, c.edges[EdgePos::UF as usize]);
       assert_eq!(Face::F, c.edges[EdgePos::FU as usize]);
     }
@@ -160,7 +146,7 @@ mod tests {
     {
       let mut c = Cube::invalid();
       c.solve_centres();
-      generic_edge_index_decode(&mut c, 0, &[(CentrePos::U, CentrePos::L)]);
+      generic_edge_index_decode(&mut c, 0, &[(Face::U, Face::L)]);
       assert_eq!(Face::U, c.edges[EdgePos::UF as usize]);
       assert_eq!(Face::L, c.edges[EdgePos::FU as usize]);
     }
@@ -168,7 +154,7 @@ mod tests {
     {
       let mut c = Cube::invalid();
       c.solve_centres();
-      generic_edge_index_decode(&mut c, 2, &[(CentrePos::U, CentrePos::L)]);
+      generic_edge_index_decode(&mut c, 2, &[(Face::U, Face::L)]);
       assert_eq!(Face::U, c.edges[EdgePos::UL as usize]);
       assert_eq!(Face::L, c.edges[EdgePos::LU as usize]);
     }
@@ -176,7 +162,7 @@ mod tests {
     {
       let mut c = Cube::invalid();
       c.solve_centres();
-      generic_edge_index_decode(&mut c, 3, &[(CentrePos::L, CentrePos::U)]);
+      generic_edge_index_decode(&mut c, 3, &[(Face::L, Face::U)]);
       assert_eq!(Face::U, c.edges[EdgePos::UL as usize]);
       assert_eq!(Face::L, c.edges[EdgePos::LU as usize]);
     }
@@ -187,7 +173,7 @@ mod tests {
       generic_edge_index_decode(
         &mut c,
         0,
-        &[(CentrePos::U, CentrePos::L), (CentrePos::U, CentrePos::F)],
+        &[(Face::U, Face::L), (Face::U, Face::F)],
       );
       assert_eq!(Face::U, c.edges[EdgePos::UF as usize]);
       assert_eq!(Face::F, c.edges[EdgePos::FU as usize]);
@@ -201,7 +187,7 @@ mod tests {
       generic_edge_index_decode(
         &mut c,
         1,
-        &[(CentrePos::U, CentrePos::L), (CentrePos::U, CentrePos::F)],
+        &[(Face::U, Face::L), (Face::U, Face::F)],
       );
       assert_eq!(Face::U, c.edges[EdgePos::UF as usize]);
       assert_eq!(Face::F, c.edges[EdgePos::FU as usize]);
@@ -215,7 +201,7 @@ mod tests {
       generic_edge_index_decode(
         &mut c,
         22,
-        &[(CentrePos::U, CentrePos::L), (CentrePos::U, CentrePos::F)],
+        &[(Face::U, Face::L), (Face::U, Face::F)],
       );
       assert_eq!(Face::F, c.edges[EdgePos::UF as usize]);
       assert_eq!(Face::U, c.edges[EdgePos::FU as usize]);
@@ -229,7 +215,7 @@ mod tests {
       generic_edge_index_decode(
         &mut c,
         45,
-        &[(CentrePos::U, CentrePos::F), (CentrePos::U, CentrePos::L)],
+        &[(Face::U, Face::F), (Face::U, Face::L)],
       );
       assert_eq!(Face::F, c.edges[EdgePos::UF as usize]);
       assert_eq!(Face::U, c.edges[EdgePos::FU as usize]);
