@@ -39,4 +39,17 @@ impl Move {
       | Move::M(a) => *a,
     }
   }
+
+  /// Create a new move with the same movement, but different amount.
+  pub fn with_amount(&self, amount: u8) -> Move {
+    match self {
+      Move::U(_) => Move::U(amount),
+      Move::D(_) => Move::D(amount),
+      Move::F(_) => Move::F(amount),
+      Move::B(_) => Move::B(amount),
+      Move::R(_) => Move::R(amount),
+      Move::L(_) => Move::L(amount),
+      Move::M(_) => Move::M(amount),
+    }
+  }
 }
