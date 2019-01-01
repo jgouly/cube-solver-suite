@@ -65,7 +65,7 @@ impl Cube {
           Face::R => self.do_r(),
           Face::L => self.do_l(),
         },
-        Move::Slice(s, ..) => self.do_m(),
+        Move::Slice(..) => self.do_m(),
       }
     }
   }
