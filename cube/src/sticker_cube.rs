@@ -57,13 +57,15 @@ impl Cube {
     let amt = m.amount();
     for _ in 0..amt {
       match &m {
-        Move::U(_) => self.do_u(),
-        Move::D(_) => self.do_d(),
-        Move::F(_) => self.do_f(),
-        Move::B(_) => self.do_b(),
-        Move::R(_) => self.do_r(),
-        Move::L(_) => self.do_l(),
-        Move::M(_) => self.do_m(),
+        Move::Face(f, ..) => match f {
+          Face::U => self.do_u(),
+          Face::D => self.do_d(),
+          Face::F => self.do_f(),
+          Face::B => self.do_b(),
+          Face::R => self.do_r(),
+          Face::L => self.do_l(),
+        },
+        Move::Slice(s, ..) => self.do_m(),
       }
     }
   }
@@ -557,11 +559,11 @@ mod tests {
     c2.do_u();
 
     let mut c = Cube::solved();
-    c.do_moves(&[Move::U(3)]);
+    c.do_moves(&[Move::Face(U, 3)]);
 
     assert_eq!(c2, c);
 
-    c.do_moves(&[Move::U(1)]);
+    c.do_moves(&[Move::Face(U, 1)]);
     assert_eq!(Cube::solved(), c);
   }
 
@@ -572,17 +574,17 @@ mod tests {
       use crate::Move::*;
       // Optimal T perm: U F2 U' F2 D R2 B2 U B2 D' R2
       c.do_moves(&[
-        U(1),
-        F(2),
-        U(3),
-        F(2),
-        D(1),
-        R(2),
-        B(2),
-        U(1),
-        B(2),
-        D(3),
-        R(2),
+        Face(U, 1),
+        Face(F, 2),
+        Face(U, 3),
+        Face(F, 2),
+        Face(D, 1),
+        Face(R, 2),
+        Face(B, 2),
+        Face(U, 1),
+        Face(B, 2),
+        Face(D, 3),
+        Face(R, 2),
       ]);
     }
     assert_eq!(

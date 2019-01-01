@@ -1,4 +1,8 @@
-use cube::Move;
+use cube::{
+  Face,
+  Move::{self, *},
+  Slice,
+};
 
 /// A trait to customise the IDDFS algorithm.
 pub trait IDDFSInfo {
@@ -24,13 +28,13 @@ pub fn iddfs<I: IDDFSInfo>(
   }
 
   for (i, &f) in [
-    Move::U(1),
-    Move::D(1),
-    Move::F(1),
-    Move::B(1),
-    Move::R(1),
-    Move::L(1),
-    Move::M(1),
+    Face(Face::U, 1),
+    Face(Face::D, 1),
+    Face(Face::F, 1),
+    Face(Face::B, 1),
+    Face(Face::R, 1),
+    Face(Face::L, 1),
+    Slice(Slice::M, 1),
   ]
   .iter()
   .enumerate()
@@ -83,7 +87,7 @@ mod tests {
     let solved = iddfs(EdgePos::FU as u32, &info, 2, &mut solution);
     assert!(solved);
     assert!(match &solution[..] {
-      [Move::U(2), Move::M(1)] => true,
+      [Face(Face::U, 2), Slice(Slice::M, 1)] => true,
       _ => false,
     });
   }

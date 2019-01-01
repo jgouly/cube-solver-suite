@@ -147,7 +147,12 @@ mod tests {
     {
       let mut c = Cube::solved();
       // Flip UL, L U' F U
-      c.do_moves(&[Move::L(1), Move::U(3), Move::F(1), Move::U(1)]);
+      c.do_moves(&[
+        Move::Face(cube::Face::L, 1),
+        Move::Face(cube::Face::U, 3),
+        Move::Face(cube::Face::F, 1),
+        Move::Face(cube::Face::U, 1),
+      ]);
 
       let uful_index =
         generic_edge_index(&c, &[(Face::U, Face::F), (Face::U, Face::L)]);
@@ -157,7 +162,12 @@ mod tests {
     {
       let mut c = Cube::solved();
       // Flip UF, F U' R U
-      c.do_moves(&[Move::F(1), Move::U(3), Move::R(1), Move::U(1)]);
+      c.do_moves(&[
+        Move::Face(cube::Face::F, 1),
+        Move::Face(cube::Face::U, 3),
+        Move::Face(cube::Face::R, 1),
+        Move::Face(cube::Face::U, 1),
+      ]);
 
       let uful_index =
         generic_edge_index(&c, &[(Face::U, Face::F), (Face::U, Face::L)]);
@@ -170,7 +180,12 @@ mod tests {
     {
       let mut c = Cube::solved();
       // Flip UF, F U' R U
-      c.do_moves(&[Move::F(1), Move::U(3), Move::R(1), Move::U(1)]);
+      c.do_moves(&[
+        Move::Face(cube::Face::F, 1),
+        Move::Face(cube::Face::U, 3),
+        Move::Face(cube::Face::R, 1),
+        Move::Face(cube::Face::U, 1),
+      ]);
 
       let uluf_index =
         generic_edge_index(&c, &[(Face::U, Face::L), (Face::U, Face::F)]);

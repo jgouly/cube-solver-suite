@@ -56,13 +56,13 @@ mod tests {
 
     let mut c = Cube::solved();
     assert_eq!(0, ptable[UF::from_cube(&c) as usize]);
-    c.do_move(Move::U(1));
+    c.do_move(Move::Face(cube::Face::U, 1));
     assert_eq!(1, ptable[UF::from_cube(&c) as usize]);
-    c.do_move(Move::U(1));
+    c.do_move(Move::Face(cube::Face::U, 1));
     assert_eq!(1, ptable[UF::from_cube(&c) as usize]);
-    c.do_move(Move::B(1));
+    c.do_move(Move::Face(cube::Face::B, 1));
     assert_eq!(2, ptable[UF::from_cube(&c) as usize]);
-    c.do_move(Move::B(1));
+    c.do_move(Move::Face(cube::Face::B, 1));
     assert_eq!(1, ptable[UF::from_cube(&c) as usize]);
   }
 }
