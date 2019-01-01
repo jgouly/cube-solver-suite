@@ -27,7 +27,7 @@ pub fn iddfs<I: IDDFSInfo>(
     return info.is_solved(&state);
   }
 
-  for (i, &f) in [
+  for (i, &m) in [
     Face(Face::U, 1),
     Face(Face::D, 1),
     Face(Face::F, 1),
@@ -39,14 +39,43 @@ pub fn iddfs<I: IDDFSInfo>(
   .iter()
   .enumerate()
   {
+    if skip_face(m, solution) {
+      continue;
+    }
+
     let mut next = state;
     for n in 1..4 {
       next = info.transition(&next, i);
-      solution.push(f.with_amount(n));
+      solution.push(m.with_amount(n));
       if iddfs::<I>(next, info, depth_remaining - 1, solution) {
         return true;
       }
       solution.pop();
+    }
+  }
+  false
+}
+
+/// Should the `Move` `m` be skipped.
+fn skip_face(m: Move, solution: &[Move]) -> bool {
+  let len = solution.len();
+  if len > 0 {
+    // Check for A A.
+    let prev_move = solution[len - 1];
+    if m.is_same_movement(&prev_move) {
+      return true;
+    }
+
+    if len > 1 {
+      // Check for A B A where A and B are opposite faces.
+      match (&m, &solution[len - 2..]) {
+        (&Move::Face(f, _), &[Move::Face(f1, _), Move::Face(f2, _)])
+          if f1.is_opposite(f2) && f1 == f =>
+        {
+          return true;
+        }
+        _ => (),
+      }
     }
   }
   false
@@ -90,5 +119,11 @@ mod tests {
       [Face(Face::U, 2), Slice(Slice::M, 1)] => true,
       _ => false,
     });
+  }
+
+  #[test]
+  fn skip_move_test() {
+    assert!(skip_face(Face(Face::R, 2), &[Face(Face::R, 1)]));
+    assert!(skip_face(Face(Face::R, 1), &[Face(Face::R, 1), Face(Face::L, 1)]));
   }
 }

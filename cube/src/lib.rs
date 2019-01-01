@@ -64,4 +64,10 @@ impl Move {
       Move::Slice(s, _) => Move::Slice(*s, amount),
     }
   }
+
+  /// Compare `m` to `self`, returning true if they have the same 'movement'.
+  /// This essentially compares the moves, but ignoring the amount field.
+  pub fn is_same_movement(&self, m: &Move) -> bool {
+    self.with_amount(0) == m.with_amount(0)
+  }
 }
