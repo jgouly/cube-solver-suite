@@ -47,17 +47,17 @@ pub fn generic_edge_index(cube: &Cube, edge_faces: &[(Face, Face)]) -> u32 {
 
   // Combine the values into the index.
   let mut edge_mult = 24;
-  let mut coord = 0;
+  let mut index = 0;
   for &e in &edges {
     debug_assert!(e < edge_mult);
     edge_mult -= 2;
-    coord += e;
-    coord *= edge_mult;
+    index += e;
+    index *= edge_mult;
   }
   // Undo the last multiplication.
-  coord /= edge_mult;
+  index /= edge_mult;
 
-  coord
+  index
 }
 
 /// Decode `index` and fill in `cube`'s edges.
@@ -93,6 +93,47 @@ pub fn generic_edge_index_decode(
     cube.edges[edges[i] as usize] = edge_faces[i].0;
     cube.edges[edges[i] as usize ^ 1] = edge_faces[i].1;
   }
+}
+
+pub fn generic_corner_index(
+  cube: &Cube,
+  corner_faces: &[(Face, Face, Face)],
+) -> u32 {
+  let mut corners = Vec::with_capacity(corner_faces.len());
+
+  // Collect the corners.
+  for &e in corner_faces {
+    corners.push(cube.find_corner(e.0, e.1, e.2) as u32);
+  }
+
+  // Modify the corner values such that:
+  //   0 < corner[n] < (24 - 3n)
+  //
+  // e.g.
+  //   0 < corner[0] < 24
+  //   0 < corner[1] < 21
+  for i in 0..corners.len() {
+    for j in 0..i {
+      if corners[i] > corners[j] {
+        corners[i] -= 3;
+      }
+    }
+    debug_assert!(corners[i] < (24 - (3 * i as u32)));
+  }
+
+  // Combine the values into the index.
+  let mut corner_mult = 24;
+  let mut index = 0;
+  for &e in &corners {
+    debug_assert!(e < corner_mult);
+    corner_mult -= 3;
+    index += e;
+    index *= corner_mult;
+  }
+  // Undo the last multiplication.
+  index /= corner_mult;
+
+  index
 }
 
 #[cfg(test)]
@@ -284,6 +325,57 @@ mod tests {
       assert_eq!(Face::U, c.edges[EdgePos::FU as usize]);
       assert_eq!(Face::U, c.edges[EdgePos::UL as usize]);
       assert_eq!(Face::L, c.edges[EdgePos::LU as usize]);
+    }
+  }
+
+  #[test]
+  fn generic_corner() {
+    let c = Cube::solved();
+    let urf_index = generic_corner_index(&c, &[(Face::U, Face::R, Face::F)]);
+    assert_eq!(0, urf_index);
+
+    let ufl_index = generic_corner_index(&c, &[(Face::U, Face::F, Face::L)]);
+    assert_eq!(3, ufl_index);
+
+    let lu_index = generic_corner_index(&c, &[(Face::L, Face::U, Face::F)]);
+    assert_eq!(5, lu_index);
+
+    let urfufl_index = generic_corner_index(
+      &c,
+      &[(Face::U, Face::R, Face::F), (Face::U, Face::F, Face::L)],
+    );
+    assert_eq!(0, urfufl_index);
+
+    {
+      let mut c = Cube::solved();
+      // Clockwise twist UFL, L2 D L'
+      c.do_moves(&[
+        Move::Face(cube::Face::L, 2),
+        Move::Face(cube::Face::D, 1),
+        Move::Face(cube::Face::L, 3),
+      ]);
+
+      let urfufl_index = generic_corner_index(
+        &c,
+        &[(Face::U, Face::R, Face::F), (Face::U, Face::F, Face::L)],
+      );
+      assert_eq!(1, urfufl_index);
+    }
+
+    {
+      let mut c = Cube::solved();
+      // Clockwise twist URF, R' D R2
+      c.do_moves(&[
+        Move::Face(cube::Face::R, 3),
+        Move::Face(cube::Face::D, 1),
+        Move::Face(cube::Face::R, 2),
+      ]);
+
+      let urfufl_index = generic_corner_index(
+        &c,
+        &[(Face::U, Face::R, Face::F), (Face::U, Face::F, Face::L)],
+      );
+      assert_eq!(21, urfufl_index);
     }
   }
 }
