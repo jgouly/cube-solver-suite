@@ -286,7 +286,6 @@ mod tests {
   fn generic_edge_decode() {
     {
       let mut c = Cube::invalid();
-      c.solve_centres();
       generic_edge_index_decode(&mut c, 0, &[(Face::U, Face::F)]);
       assert_eq!(Face::U, c.edges[EdgePos::UF as usize]);
       assert_eq!(Face::F, c.edges[EdgePos::FU as usize]);
@@ -294,7 +293,6 @@ mod tests {
 
     {
       let mut c = Cube::invalid();
-      c.solve_centres();
       generic_edge_index_decode(&mut c, 0, &[(Face::U, Face::L)]);
       assert_eq!(Face::U, c.edges[EdgePos::UF as usize]);
       assert_eq!(Face::L, c.edges[EdgePos::FU as usize]);
@@ -302,7 +300,6 @@ mod tests {
 
     {
       let mut c = Cube::invalid();
-      c.solve_centres();
       generic_edge_index_decode(&mut c, 2, &[(Face::U, Face::L)]);
       assert_eq!(Face::U, c.edges[EdgePos::UL as usize]);
       assert_eq!(Face::L, c.edges[EdgePos::LU as usize]);
@@ -310,7 +307,6 @@ mod tests {
 
     {
       let mut c = Cube::invalid();
-      c.solve_centres();
       generic_edge_index_decode(&mut c, 3, &[(Face::L, Face::U)]);
       assert_eq!(Face::U, c.edges[EdgePos::UL as usize]);
       assert_eq!(Face::L, c.edges[EdgePos::LU as usize]);
@@ -318,7 +314,6 @@ mod tests {
 
     {
       let mut c = Cube::invalid();
-      c.solve_centres();
       generic_edge_index_decode(
         &mut c,
         0,
@@ -332,7 +327,6 @@ mod tests {
 
     {
       let mut c = Cube::invalid();
-      c.solve_centres();
       generic_edge_index_decode(
         &mut c,
         1,
@@ -346,7 +340,6 @@ mod tests {
 
     {
       let mut c = Cube::invalid();
-      c.solve_centres();
       generic_edge_index_decode(
         &mut c,
         22,
@@ -360,7 +353,6 @@ mod tests {
 
     {
       let mut c = Cube::invalid();
-      c.solve_centres();
       generic_edge_index_decode(
         &mut c,
         45,
@@ -428,7 +420,6 @@ mod tests {
   fn generic_corner_decode() {
     {
       let mut c = Cube::invalid();
-      c.solve_centres();
       generic_corner_index_decode(&mut c, 0, &[(Face::U, Face::R, Face::F)]);
       assert_eq!(Face::U, c.corners[CornerPos::URF as usize]);
       assert_eq!(Face::R, c.corners[CornerPos::RFU as usize]);
@@ -437,7 +428,6 @@ mod tests {
 
     {
       let mut c = Cube::invalid();
-      c.solve_centres();
       generic_corner_index_decode(&mut c, 3, &[(Face::U, Face::F, Face::L)]);
       assert_eq!(Face::U, c.corners[CornerPos::UFL as usize]);
       assert_eq!(Face::F, c.corners[CornerPos::FLU as usize]);
@@ -446,7 +436,6 @@ mod tests {
 
     {
       let mut c = Cube::invalid();
-      c.solve_centres();
       generic_corner_index_decode(&mut c, 5, &[(Face::U, Face::F, Face::L)]);
 
       assert_eq!(Face::F, c.corners[CornerPos::UFL as usize]);
@@ -456,7 +445,6 @@ mod tests {
 
     {
       let mut c = Cube::invalid();
-      c.solve_centres();
       generic_corner_index_decode(&mut c, 1, &[(Face::U, Face::F, Face::L), (Face::U, Face::R, Face::F)]);
       assert_eq!(Face::U, c.corners[CornerPos::URF as usize]);
       assert_eq!(Face::R, c.corners[CornerPos::RFU as usize]);
