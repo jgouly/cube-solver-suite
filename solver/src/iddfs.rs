@@ -14,6 +14,9 @@ pub trait IDDFSInfo {
 
   /// Used to transition from one state to the next.
   fn transition(&self, state: &Self::State, m: usize) -> Self::State;
+
+  /// Should the search prune the search for `state`.
+  fn prune(&self, state: &Self::State, depth_remaining: usize) -> bool;
 }
 
 /// Iterative deepening depth first search.
@@ -25,6 +28,10 @@ pub fn iddfs<I: IDDFSInfo>(
 ) -> bool {
   if depth_remaining == 0 {
     return info.is_solved(&state);
+  }
+
+  if info.prune(&state, depth_remaining) {
+    return false;
   }
 
   for (i, &m) in [
@@ -86,24 +93,33 @@ mod tests {
   use super::*;
 
   use crate::index::example::UF;
+  use crate::pruning::gen_prune_table;
   use crate::transition::gen_transition_table;
   use cube::sticker_cube::EdgePos;
 
   #[test]
   fn minimal_uf() {
-    struct UFInfo(Box<[[u32; 7]]>);;
+    struct UFInfo(Box<[[u32; 7]]>, Box<[u8]>);;
 
     impl IDDFSInfo for UFInfo {
       type State = u32;
+
       fn is_solved(&self, &s: &Self::State) -> bool {
         s == 0
       }
+
       fn transition(&self, state: &Self::State, m: usize) -> Self::State {
         self.0[*state as usize][m]
       }
+
+      fn prune(&self, state: &Self::State, depth_remaining: usize) -> bool {
+        (depth_remaining as u8) < self.1[*state as usize]
+      }
     }
 
-    let info = UFInfo(gen_transition_table::<UF>());;
+    let table = gen_transition_table::<UF>();
+    let ptable = gen_prune_table(&table, 2, 0);
+    let info = UFInfo(table, ptable);
 
     // This can use an EdgePos here since this index only looks at a single edge.
     let solved = iddfs(EdgePos::UF as u32, &info, 0, &mut Vec::new());
@@ -124,6 +140,9 @@ mod tests {
   #[test]
   fn skip_move_test() {
     assert!(skip_face(Face(Face::R, 2), &[Face(Face::R, 1)]));
-    assert!(skip_face(Face(Face::R, 1), &[Face(Face::R, 1), Face(Face::L, 1)]));
+    assert!(skip_face(
+      Face(Face::R, 1),
+      &[Face(Face::R, 1), Face(Face::L, 1)]
+    ));
   }
 }
