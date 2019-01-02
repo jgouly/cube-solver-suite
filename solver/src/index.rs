@@ -95,6 +95,7 @@ pub fn generic_edge_index_decode(
   }
 }
 
+/// Create an index for a list of corners.
 pub fn generic_corner_index(
   cube: &Cube,
   corner_faces: &[(Face, Face, Face)],
@@ -136,6 +137,50 @@ pub fn generic_corner_index(
   index
 }
 
+/// Decode `index` and fill in `cube`'s corners.
+pub fn generic_corner_index_decode(
+  cube: &mut Cube,
+  index: u32,
+  corner_faces: &[(Face, Face, Face)],
+) {
+  let num = corner_faces.len();
+  let mut corner_div = 24 - ((num as u32 - 1) * 3);
+  let mut corners = Vec::with_capacity(num);
+
+  let mut index = index;
+  // Extract the digits from the index.
+  for _ in 0..num {
+    corners.push(index % corner_div);
+    index = index / corner_div;
+    corner_div += 3;
+  }
+
+  // Modify the corner values, such that 0 < corner[n] < 24.
+  for i in 0..corners.len() {
+    for j in (i + 1)..corners.len() {
+      // The divide ignores orientation.
+      if (corners[i] / 3) >= (corners[j] / 3) {
+        corners[i] += 3;
+      }
+    }
+  }
+
+  // Fill in the cube's corners.
+  for i in 0..corners.len() {
+    let corner_index = corners[i];
+    let order = match corner_index % 3 {
+      0 => (corner_index, corner_index + 1, corner_index + 2),
+      1 => (corner_index, corner_index + 1, corner_index - 1),
+      2 => (corner_index, corner_index - 2, corner_index - 1),
+      _ => unreachable!(),
+    };
+
+    cube.corners[order.0 as usize] = corner_faces[i].0;
+    cube.corners[order.1 as usize] = corner_faces[i].1;
+    cube.corners[order.2 as usize] = corner_faces[i].2;
+  }
+}
+
 #[cfg(test)]
 pub mod example {
   use super::*;
@@ -161,7 +206,7 @@ pub mod example {
 #[cfg(test)]
 mod tests {
   use super::*;
-  use cube::sticker_cube::EdgePos;
+  use cube::sticker_cube::{CornerPos, EdgePos};
   use cube::Move;
 
   #[test]
@@ -337,8 +382,8 @@ mod tests {
     let ufl_index = generic_corner_index(&c, &[(Face::U, Face::F, Face::L)]);
     assert_eq!(3, ufl_index);
 
-    let lu_index = generic_corner_index(&c, &[(Face::L, Face::U, Face::F)]);
-    assert_eq!(5, lu_index);
+    let luf_index = generic_corner_index(&c, &[(Face::L, Face::U, Face::F)]);
+    assert_eq!(5, luf_index);
 
     let urfufl_index = generic_corner_index(
       &c,
@@ -376,6 +421,60 @@ mod tests {
         &[(Face::U, Face::R, Face::F), (Face::U, Face::F, Face::L)],
       );
       assert_eq!(21, urfufl_index);
+    }
+  }
+
+  #[test]
+  fn generic_corner_decode() {
+    {
+      let mut c = Cube::invalid();
+      c.solve_centres();
+      generic_corner_index_decode(&mut c, 0, &[(Face::U, Face::R, Face::F)]);
+      assert_eq!(Face::U, c.corners[CornerPos::URF as usize]);
+      assert_eq!(Face::R, c.corners[CornerPos::RFU as usize]);
+      assert_eq!(Face::F, c.corners[CornerPos::FUR as usize]);
+    }
+
+    {
+      let mut c = Cube::invalid();
+      c.solve_centres();
+      generic_corner_index_decode(&mut c, 3, &[(Face::U, Face::F, Face::L)]);
+      assert_eq!(Face::U, c.corners[CornerPos::UFL as usize]);
+      assert_eq!(Face::F, c.corners[CornerPos::FLU as usize]);
+      assert_eq!(Face::L, c.corners[CornerPos::LUF as usize]);
+    }
+
+    {
+      let mut c = Cube::invalid();
+      c.solve_centres();
+      generic_corner_index_decode(&mut c, 5, &[(Face::U, Face::F, Face::L)]);
+
+      assert_eq!(Face::F, c.corners[CornerPos::UFL as usize]);
+      assert_eq!(Face::L, c.corners[CornerPos::FLU as usize]);
+      assert_eq!(Face::U, c.corners[CornerPos::LUF as usize]);
+    }
+
+    {
+      let mut c = Cube::invalid();
+      c.solve_centres();
+      generic_corner_index_decode(&mut c, 1, &[(Face::U, Face::F, Face::L), (Face::U, Face::R, Face::F)]);
+      assert_eq!(Face::U, c.corners[CornerPos::URF as usize]);
+      assert_eq!(Face::R, c.corners[CornerPos::RFU as usize]);
+      assert_eq!(Face::F, c.corners[CornerPos::FUR as usize]);
+      assert_eq!(Face::L, c.corners[CornerPos::UFL as usize]);
+      assert_eq!(Face::U, c.corners[CornerPos::FLU as usize]);
+      assert_eq!(Face::F, c.corners[CornerPos::LUF as usize]);
+    }
+
+    {
+      let mut c = Cube::invalid();
+      generic_corner_index_decode(&mut c, 21, &[(Face::U, Face::F, Face::L), (Face::U, Face::R, Face::F)]);
+      assert_eq!(Face::F, c.corners[CornerPos::URF as usize]);
+      assert_eq!(Face::U, c.corners[CornerPos::RFU as usize]);
+      assert_eq!(Face::R, c.corners[CornerPos::FUR as usize]);
+      assert_eq!(Face::U, c.corners[CornerPos::UFL as usize]);
+      assert_eq!(Face::F, c.corners[CornerPos::FLU as usize]);
+      assert_eq!(Face::L, c.corners[CornerPos::LUF as usize]);
     }
   }
 }
