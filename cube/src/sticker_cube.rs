@@ -70,6 +70,7 @@ impl Cube {
           _ => unimplemented!("Slice {:?} not implemented!", m),
         },
         Move::Rotation(r, ..) => match r {
+          Rotation::X => self.do_x(),
           _ => unimplemented!("Rotation {:?} not implemented!", r),
         },
       }
@@ -159,6 +160,15 @@ impl Cube {
     self.centres[CentrePos::D as usize] = centres[CentrePos::F as usize];
     self.centres[CentrePos::B as usize] = centres[CentrePos::D as usize];
     self.centres[CentrePos::U as usize] = centres[CentrePos::B as usize];
+  }
+
+  pub fn do_x(&mut self) {
+    // FIXME: Use direct cycles.
+    self.do_r();
+    for _ in 0..3 {
+      self.do_m();
+      self.do_l();
+    }
   }
 
   /// Find the `EdgePos` for a particular edge piece.
@@ -552,6 +562,27 @@ mod tests {
           B
         ],
         centres: [B, R, U, F, D, L]
+      },
+      c
+    );
+  }
+
+  #[test]
+  fn x_move() {
+    let mut c = Cube::solved();
+    c.do_x();
+
+    assert_eq!(
+      Cube {
+        edges: [
+          F, D, F, L, F, U, F, R, B, D, B, L, B, U, B, R, D, R, D, L, U, L, U,
+          R
+        ],
+        corners: [
+          F, R, D, F, D, L, F, L, U, F, U, R, B, D, R, B, L, D, B, U, L, B, R,
+          U
+        ],
+        centres: [F, R, D, B, U, L],
       },
       c
     );
