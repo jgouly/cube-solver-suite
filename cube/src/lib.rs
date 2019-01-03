@@ -42,18 +42,27 @@ pub enum Slice {
   S,
 }
 
+/// Represents a rotation of the cube.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum Rotation {
+  X,
+  Y,
+  Z,
+}
+
 /// Represents a move of the cube.
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Move {
   Face(Face, u8),
   Slice(Slice, u8),
+  Rotation(Rotation, u8),
 }
 
 impl Move {
   /// Get the amount of 90 degree turns. Returns 1, 2 or 3.
   pub fn amount(&self) -> u8 {
     match self {
-      Move::Face(_, a) | Move::Slice(_, a) => *a,
+      Move::Face(_, a) | Move::Slice(_, a) | Move::Rotation(_, a) => *a,
     }
   }
 
@@ -62,6 +71,7 @@ impl Move {
     match self {
       Move::Face(f, _) => Move::Face(*f, amount),
       Move::Slice(s, _) => Move::Slice(*s, amount),
+      Move::Rotation(s, _) => Move::Rotation(*s, amount),
     }
   }
 

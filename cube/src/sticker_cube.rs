@@ -1,4 +1,4 @@
-use crate::{Face, Move};
+use crate::{Face, Move, Rotation, Slice};
 
 /// Represents a 3x3x3 cube using a representation that is similar to storing
 /// sticker colours. This representation includes centre pieces so can
@@ -65,7 +65,13 @@ impl Cube {
           Face::R => self.do_r(),
           Face::L => self.do_l(),
         },
-        Move::Slice(..) => self.do_m(),
+        Move::Slice(m, ..) => match m {
+          Slice::M => self.do_m(),
+          _ => unimplemented!("Slice {:?} not implemented!", m),
+        },
+        Move::Rotation(r, ..) => match r {
+          _ => unimplemented!("Rotation {:?} not implemented!", r),
+        },
       }
     }
   }
