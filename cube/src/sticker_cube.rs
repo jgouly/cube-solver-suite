@@ -71,6 +71,7 @@ impl Cube {
         },
         Move::Rotation(r, ..) => match r {
           Rotation::X => self.do_x(),
+          Rotation::Y => self.do_y(),
           _ => unimplemented!("Rotation {:?} not implemented!", r),
         },
       }
@@ -162,12 +163,33 @@ impl Cube {
     self.centres[CentrePos::U as usize] = centres[CentrePos::B as usize];
   }
 
+  pub fn do_e(&mut self) {
+    use self::EdgePos::*;
+    edge4(FR, RB, BL, LF, &mut self.edges);
+    edge4(RF, BR, LB, FL, &mut self.edges);
+
+    let centres = self.centres;
+    self.centres[CentrePos::F as usize] = centres[CentrePos::L as usize];
+    self.centres[CentrePos::L as usize] = centres[CentrePos::B as usize];
+    self.centres[CentrePos::B as usize] = centres[CentrePos::R as usize];
+    self.centres[CentrePos::R as usize] = centres[CentrePos::F as usize];
+  }
+
   pub fn do_x(&mut self) {
     // FIXME: Use direct cycles.
     self.do_r();
     for _ in 0..3 {
       self.do_m();
       self.do_l();
+    }
+  }
+
+  pub fn do_y(&mut self) {
+    // FIXME: Use direct cycles.
+    self.do_u();
+    for _ in 0..3 {
+      self.do_e();
+      self.do_d();
     }
   }
 
@@ -583,6 +605,27 @@ mod tests {
           U
         ],
         centres: [F, R, D, B, U, L],
+      },
+      c
+    );
+  }
+
+  #[test]
+  fn y_move() {
+    let mut c = Cube::solved();
+    c.do_y();
+
+    assert_eq!(
+      Cube {
+        edges: [
+          U, R, U, F, U, L, U, B, D, R, D, F, D, L, D, B, R, B, R, F, L, F, L,
+          B
+        ],
+        corners: [
+          U, B, R, U, R, F, U, F, L, U, L, B, D, R, B, D, F, R, D, L, F, D, B,
+          L
+        ],
+        centres: [U, B, R, D, L, F],
       },
       c
     );
