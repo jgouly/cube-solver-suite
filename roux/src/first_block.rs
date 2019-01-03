@@ -1,4 +1,5 @@
 use cube::{Cube, Face};
+use solver::iddfs::IDDFSInfo;
 use solver::index::{
   generic_corner_index, generic_corner_index_decode, generic_edge_index,
   generic_edge_index_decode, Index,
@@ -52,10 +53,38 @@ impl Index for FBCorners {
   }
 }
 
+/// IDDFS Info for the first block.
+pub struct FBInfo(Box<[[u32; 7]]>, Box<[[u32; 7]]>);
+
+impl IDDFSInfo for FBInfo {
+  type State = (u32, u32);
+
+  fn is_solved(&self, state: &Self::State) -> bool {
+    let c = Cube::solved();
+    *state == (FBEdges::from_cube(&c), FBCorners::from_cube(&c))
+  }
+
+  fn transition(&self, state: &Self::State, m: usize) -> Self::State {
+    (self.0[state.0 as usize][m], self.1[state.1 as usize][m])
+  }
+
+  fn prune(&self, _: &Self::State, _: usize) -> bool {
+    false
+  }
+}
+
+impl FBInfo {
+  pub fn get_state(&self, c: &Cube) -> <Self as IDDFSInfo>::State {
+    (FBEdges::from_cube(&c), FBCorners::from_cube(&c))
+  }
+}
+
 #[cfg(test)]
 mod tests {
   use super::*;
+  use solver::iddfs::iddfs;
   use solver::index::exhaustive_index_check;
+  use solver::transition::gen_transition_table;
 
   #[test]
   fn exhaustive_fbe() {
@@ -65,5 +94,31 @@ mod tests {
   #[test]
   fn exhaustive_fbc() {
     exhaustive_index_check::<FBCorners>();
+  }
+
+  #[test]
+  fn basic_fb() {
+    let e_table = gen_transition_table::<FBEdges>();
+    let c_table = gen_transition_table::<FBCorners>();
+    let info = FBInfo(e_table, c_table);
+
+    let c = Cube::solved();
+    let solved = iddfs(info.get_state(&c), &info, 0, &mut Vec::new());
+    assert!(solved);
+
+    let mut c = Cube::solved();
+    c.do_move(cube::Move::Face(cube::Face::R, 1));
+    let solved = iddfs(info.get_state(&c), &info, 0, &mut Vec::new());
+    assert!(solved);
+
+    let mut c = Cube::solved();
+    c.do_move(cube::Move::Face(cube::Face::D, 1));
+    let solved = iddfs(info.get_state(&c), &info, 0, &mut Vec::new());
+    assert!(!solved);
+
+    let mut c = Cube::solved();
+    c.do_move(cube::Move::Face(cube::Face::D, 1));
+    let solved = iddfs(info.get_state(&c), &info, 1, &mut Vec::new());
+    assert!(solved);
   }
 }

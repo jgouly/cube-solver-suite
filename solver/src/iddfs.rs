@@ -99,7 +99,7 @@ mod tests {
 
   #[test]
   fn minimal_uf() {
-    struct UFInfo(Box<[[u32; 7]]>, Box<[u8]>);;
+    struct UFInfo(Box<[[u32; 7]]>, Box<[u8]>);
 
     impl IDDFSInfo for UFInfo {
       type State = u32;
