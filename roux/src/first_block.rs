@@ -54,7 +54,7 @@ impl Index for FBCorners {
 }
 
 /// IDDFS Info for the first block.
-pub struct FBInfo(Box<[[u32; 7]]>, Box<[[u32; 7]]>);
+pub struct FBInfo(Box<[[u32; 7]]>, Box<[[u32; 7]]>, Box<[u8]>, Box<[u8]>);
 
 impl IDDFSInfo for FBInfo {
   type State = (u32, u32);
@@ -68,8 +68,10 @@ impl IDDFSInfo for FBInfo {
     (self.0[state.0 as usize][m], self.1[state.1 as usize][m])
   }
 
-  fn prune(&self, _: &Self::State, _: usize) -> bool {
-    false
+  fn prune(&self, state: &Self::State, depth_remaining: usize) -> bool {
+    depth_remaining
+      < std::cmp::max(self.2[state.0 as usize], self.3[state.1 as usize])
+        as usize
   }
 }
 
@@ -84,6 +86,7 @@ mod tests {
   use super::*;
   use solver::iddfs::iddfs;
   use solver::index::exhaustive_index_check;
+  use solver::pruning::gen_prune_table;
   use solver::transition::gen_transition_table;
 
   #[test]
@@ -98,9 +101,12 @@ mod tests {
 
   #[test]
   fn basic_fb() {
+    let c = Cube::solved();
     let e_table = gen_transition_table::<FBEdges>();
+    let e_ptable = gen_prune_table(&e_table, 7, FBEdges::from_cube(&c));
     let c_table = gen_transition_table::<FBCorners>();
-    let info = FBInfo(e_table, c_table);
+    let c_ptable = gen_prune_table(&c_table, 4, FBCorners::from_cube(&c));
+    let info = FBInfo(e_table, c_table, e_ptable, c_ptable);
 
     let c = Cube::solved();
     let solved = iddfs(info.get_state(&c), &info, 0, &mut Vec::new());
