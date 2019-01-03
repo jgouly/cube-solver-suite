@@ -5,3 +5,5 @@ authors = ["Joey Gouly <joey.gouly@gmail.com>"]
 edition = "2018"
 
 [dependencies]
+cube = { path = "../cube" }
+solver = { path = "../solver" }

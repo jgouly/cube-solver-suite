@@ -445,7 +445,11 @@ mod tests {
 
     {
       let mut c = Cube::invalid();
-      generic_corner_index_decode(&mut c, 1, &[(Face::U, Face::F, Face::L), (Face::U, Face::R, Face::F)]);
+      generic_corner_index_decode(
+        &mut c,
+        1,
+        &[(Face::U, Face::F, Face::L), (Face::U, Face::R, Face::F)],
+      );
       assert_eq!(Face::U, c.corners[CornerPos::URF as usize]);
       assert_eq!(Face::R, c.corners[CornerPos::RFU as usize]);
       assert_eq!(Face::F, c.corners[CornerPos::FUR as usize]);
@@ -456,7 +460,11 @@ mod tests {
 
     {
       let mut c = Cube::invalid();
-      generic_corner_index_decode(&mut c, 21, &[(Face::U, Face::F, Face::L), (Face::U, Face::R, Face::F)]);
+      generic_corner_index_decode(
+        &mut c,
+        21,
+        &[(Face::U, Face::F, Face::L), (Face::U, Face::R, Face::F)],
+      );
       assert_eq!(Face::F, c.corners[CornerPos::URF as usize]);
       assert_eq!(Face::U, c.corners[CornerPos::RFU as usize]);
       assert_eq!(Face::R, c.corners[CornerPos::FUR as usize]);
