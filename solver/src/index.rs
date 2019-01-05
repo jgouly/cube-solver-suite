@@ -6,18 +6,18 @@ pub trait Index {
   const NUM_ELEMS: u32;
 
   /// A conversion from a `Cube` into a `u32`.
-  fn from_cube(c: &Cube) -> u32;
+  fn from_cube(&self, c: &Cube) -> u32;
 
   /// A conversion from a `u32` into a `Cube`.
-  fn from_index(i: u32) -> Cube;
+  fn from_index(&self, i: u32) -> Cube;
 }
 
 /// Iterate over an `Index`'s elements, asserting that `from_index` and
 /// `from_cube` match.
-pub fn exhaustive_index_check<I: Index>() {
+pub fn exhaustive_index_check<I: Index>(index: &I) {
   for i in 0..I::NUM_ELEMS {
-    let c = I::from_index(i);
-    assert_eq!(i, I::from_cube(&c));
+    let c = index.from_index(i);
+    assert_eq!(i, index.from_cube(&c));
   }
 }
 
@@ -190,11 +190,11 @@ pub mod example {
 
   impl Index for UF {
     const NUM_ELEMS: u32 = 24;
-    fn from_cube(c: &Cube) -> u32 {
+    fn from_cube(&self, c: &Cube) -> u32 {
       c.find_edge(Face::U, Face::F) as u32
     }
 
-    fn from_index(i: u32) -> Cube {
+    fn from_index(&self, i: u32) -> Cube {
       let mut c = Cube::invalid();
       c.edges[i as usize] = Face::U;
       c.edges[i as usize ^ 1] = Face::F;
@@ -211,7 +211,7 @@ mod tests {
 
   #[test]
   fn exhaustive_uf() {
-    exhaustive_index_check::<example::UF>();
+    exhaustive_index_check(&example::UF);
   }
 
   #[test]

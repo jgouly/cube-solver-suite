@@ -50,19 +50,20 @@ mod tests {
 
   #[test]
   fn minimal_uf() {
-    let table = gen_transition_table::<UF>();
+    let uf = UF;
+    let table = gen_transition_table(&uf);
     let ptable = gen_prune_table(&table, 2, 0);
     assert_eq!(2, *ptable.iter().max().unwrap());
 
     let mut c = Cube::solved();
-    assert_eq!(0, ptable[UF::from_cube(&c) as usize]);
+    assert_eq!(0, ptable[uf.from_cube(&c) as usize]);
     c.do_move(Move::Face(cube::Face::U, 1));
-    assert_eq!(1, ptable[UF::from_cube(&c) as usize]);
+    assert_eq!(1, ptable[uf.from_cube(&c) as usize]);
     c.do_move(Move::Face(cube::Face::U, 1));
-    assert_eq!(1, ptable[UF::from_cube(&c) as usize]);
+    assert_eq!(1, ptable[uf.from_cube(&c) as usize]);
     c.do_move(Move::Face(cube::Face::B, 1));
-    assert_eq!(2, ptable[UF::from_cube(&c) as usize]);
+    assert_eq!(2, ptable[uf.from_cube(&c) as usize]);
     c.do_move(Move::Face(cube::Face::B, 1));
-    assert_eq!(1, ptable[UF::from_cube(&c) as usize]);
+    assert_eq!(1, ptable[uf.from_cube(&c) as usize]);
   }
 }

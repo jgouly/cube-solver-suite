@@ -11,14 +11,14 @@ pub struct FBEdges;
 impl Index for FBEdges {
   const NUM_ELEMS: u32 = 24 * 22 * 20;
 
-  fn from_cube(c: &Cube) -> u32 {
+  fn from_cube(&self, c: &Cube) -> u32 {
     generic_edge_index(
       &c,
       &[(Face::D, Face::L), (Face::F, Face::L), (Face::B, Face::L)],
     )
   }
 
-  fn from_index(i: u32) -> Cube {
+  fn from_index(&self, i: u32) -> Cube {
     let mut c = Cube::invalid();
     generic_edge_index_decode(
       &mut c,
@@ -35,14 +35,14 @@ pub struct FBCorners;
 impl Index for FBCorners {
   const NUM_ELEMS: u32 = 24 * 21;
 
-  fn from_cube(c: &Cube) -> u32 {
+  fn from_cube(&self, c: &Cube) -> u32 {
     generic_corner_index(
       &c,
       &[(Face::D, Face::L, Face::F), (Face::D, Face::B, Face::L)],
     )
   }
 
-  fn from_index(i: u32) -> Cube {
+  fn from_index(&self, i: u32) -> Cube {
     let mut c = Cube::invalid();
     generic_corner_index_decode(
       &mut c,
@@ -61,7 +61,9 @@ impl IDDFSInfo for FBInfo {
 
   fn is_solved(&self, state: &Self::State) -> bool {
     let c = Cube::solved();
-    *state == (FBEdges::from_cube(&c), FBCorners::from_cube(&c))
+    let fbe = FBEdges;
+    let fbc = FBCorners;
+    *state == (fbe.from_cube(&c), fbc.from_cube(&c))
   }
 
   fn transition(&self, state: &Self::State, m: usize) -> Self::State {
@@ -77,7 +79,9 @@ impl IDDFSInfo for FBInfo {
 
 impl FBInfo {
   pub fn get_state(&self, c: &Cube) -> <Self as IDDFSInfo>::State {
-    (FBEdges::from_cube(&c), FBCorners::from_cube(&c))
+    let fbe = FBEdges;
+    let fbc = FBCorners;
+    (fbe.from_cube(&c), fbc.from_cube(&c))
   }
 }
 
@@ -91,21 +95,23 @@ mod tests {
 
   #[test]
   fn exhaustive_fbe() {
-    exhaustive_index_check::<FBEdges>();
+    exhaustive_index_check(&FBEdges);
   }
 
   #[test]
   fn exhaustive_fbc() {
-    exhaustive_index_check::<FBCorners>();
+    exhaustive_index_check(&FBCorners);
   }
 
   #[test]
   fn basic_fb() {
     let c = Cube::solved();
-    let e_table = gen_transition_table::<FBEdges>();
-    let e_ptable = gen_prune_table(&e_table, 7, FBEdges::from_cube(&c));
-    let c_table = gen_transition_table::<FBCorners>();
-    let c_ptable = gen_prune_table(&c_table, 4, FBCorners::from_cube(&c));
+    let fbe = FBEdges;
+    let e_table = gen_transition_table(&fbe);
+    let e_ptable = gen_prune_table(&e_table, 7, fbe.from_cube(&c));
+    let fbc = FBCorners;
+    let c_table = gen_transition_table(&fbc);
+    let c_ptable = gen_prune_table(&c_table, 4, fbc.from_cube(&c));
     let info = FBInfo(e_table, c_table, e_ptable, c_ptable);
 
     let c = Cube::solved();

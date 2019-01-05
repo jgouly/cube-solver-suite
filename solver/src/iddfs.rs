@@ -117,7 +117,7 @@ mod tests {
       }
     }
 
-    let table = gen_transition_table::<UF>();
+    let table = gen_transition_table(&UF);
     let ptable = gen_prune_table(&table, 2, 0);
     let info = UFInfo(table, ptable);
 
