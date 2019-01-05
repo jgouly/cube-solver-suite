@@ -28,6 +28,18 @@ impl Face {
     }
   }
 
+  /// Get the `Face` that is opposite to `self`.
+  pub fn opposite(&self) -> Face {
+    match self {
+      Face::U => Face::D,
+      Face::D => Face::U,
+      Face::F => Face::B,
+      Face::B => Face::F,
+      Face::R => Face::L,
+      Face::L => Face::R,
+    }
+  }
+
   /// Test if `face` is an opposite `Face`.
   pub fn is_opposite(&self, face: Face) -> bool {
     self.slice() == face.slice()
