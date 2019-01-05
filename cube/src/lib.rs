@@ -2,7 +2,6 @@ mod parser;
 pub mod sticker_cube;
 
 pub use crate::parser::parse_moves;
-pub use crate::sticker_cube::CentrePos;
 pub use crate::sticker_cube::Cube;
 
 /// Represents a face of the cube.
