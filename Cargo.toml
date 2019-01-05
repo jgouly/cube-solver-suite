@@ -4,4 +4,5 @@ members = [
   "cube",
   "roux",
   "solver",
+  "web-frontend",
 ]
