@@ -4,4 +4,9 @@ version = "0.1.0"
 authors = ["Joey Gouly <joey.gouly@gmail.com>"]
 edition = "2018"
 
+[lib]
+crate-type = ["cdylib"]
+
 [dependencies]
+cube = { path = "../cube" }
+roux = { path = "../roux" }
