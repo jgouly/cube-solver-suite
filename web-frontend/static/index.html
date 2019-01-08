@@ -18,6 +18,18 @@
       return str;
     }
 
+    function create_rust_string(str, results) {
+      const encoder = new TextEncoder();
+      let encoded_str = encoder.encode(str);
+
+      const string_ptr = results.exports.alloc_rust_string(encoded_str.length);
+      const string_mem = results.exports.get_rust_string_ptr(string_ptr);
+
+      const asBytes = new Uint8Array(results.exports.memory.buffer, string_mem, encoded_str.length);
+      asBytes.set(encoded_str);
+      return string_ptr;
+    }
+
     var wasm_file = location.origin + '/target/wasm32-unknown-unknown//release/web_frontend.wasm';
     fetch(wasm_file).then(response =>
       response.arrayBuffer()
@@ -29,7 +41,9 @@
       })
     ).then(results => {
       wasm = results.instance;
-      wasm.exports.solve_fb();
+      let a = create_rust_string("TODO", wasm);
+      wasm.exports.solve_fb(a);
+      wasm.exports.dealloc_rust_string(a);
       const str = get_stack_str(wasm);
       console.log(str);
     });
