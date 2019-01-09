@@ -18,18 +18,24 @@ pub fn solve_fb(s: JSString) {
   let mut c = Cube::solved();
   let scramble = parse_moves(&s.as_string()).unwrap();
   c.do_moves(&scramble);
-
-  for i in 0..10 {
-    let mut solution = Vec::with_capacity(i);
-    let solved =
-      solver::iddfs::iddfs(info.get_state(&c), info, i, &mut solution);
-    if solved {
-      let mut ret = String::new();
-      for m in solution {
-        ret.push_str(&format!("{} ", m));
+  for o in 0..24 {
+    let mut c = c;
+    c.do_moves(&roux::DL_ORIENTATIONS[o]);
+    for i in 0..10 {
+      let mut solution = Vec::with_capacity(i);
+      let solved =
+        solver::iddfs::iddfs(info.get_state(&c), info, i, &mut solution);
+      if solved {
+        let mut ret = String::new();
+        for m in roux::DL_ORIENTATIONS[o] {
+          ret.push_str(&format!("{} ", m));
+        }
+        for m in solution {
+          ret.push_str(&format!("{} ", m));
+        }
+        stack_push_str(&ret);
+        break;
       }
-      stack_push_str(&ret);
-      break;
     }
   }
 }

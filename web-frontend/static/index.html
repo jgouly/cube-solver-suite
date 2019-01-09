@@ -49,8 +49,10 @@
         let scramble = create_rust_string(document.getElementById("scramble").value, wasm);
         wasm.exports.solve_fb(scramble);
         wasm.exports.dealloc_rust_string(scramble);
-        const str = get_stack_str(wasm);
-        console.log(str);
+        for(var i = 0; i < 24; ++i) {
+          const str = get_stack_str(wasm);
+          console.log(str);
+        }
       }
     }
   </script>
