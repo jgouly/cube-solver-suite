@@ -19,13 +19,17 @@ pub fn solve_fb(s: JSString) {
   let scramble = parse_moves(&s.as_string()).unwrap();
   c.do_moves(&scramble);
 
-  let mut solution = Vec::new();
-  let solved = solver::iddfs::iddfs(info.get_state(&c), info, 1, &mut solution);
-  assert!(solved);
-
-  let mut ret = String::new();
-  for m in solution {
-    ret.push_str(&format!("{:?}", m));
+  for i in 0..10 {
+    let mut solution = Vec::with_capacity(i);
+    let solved =
+      solver::iddfs::iddfs(info.get_state(&c), info, i, &mut solution);
+    if solved {
+      let mut ret = String::new();
+      for m in solution {
+        ret.push_str(&format!("{:?} ", m));
+      }
+      stack_push_str(&ret);
+      break;
+    }
   }
-  stack_push_str(&ret);
 }

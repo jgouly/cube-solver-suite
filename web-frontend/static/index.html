@@ -30,6 +30,7 @@
       return string_ptr;
     }
 
+    var wasm;
     var wasm_file = location.origin + '/target/wasm32-unknown-unknown//release/web_frontend.wasm';
     fetch(wasm_file).then(response =>
       response.arrayBuffer()
@@ -41,16 +42,23 @@
       })
     ).then(results => {
       wasm = results.instance;
-      let a = create_rust_string("F", wasm);
-      wasm.exports.solve_fb(a);
-      wasm.exports.dealloc_rust_string(a);
-      const str = get_stack_str(wasm);
-      console.log(str);
     });
+
+    window.onload = function() {
+      document.getElementById("solve_button").onclick = function() {
+        let scramble = create_rust_string(document.getElementById("scramble").value, wasm);
+        wasm.exports.solve_fb(scramble);
+        wasm.exports.dealloc_rust_string(scramble);
+        const str = get_stack_str(wasm);
+        console.log(str);
+      }
+    }
   </script>
 </head>
 
 <body>
+<input type="text" size="100" id="scramble"></input>
+<input type="button" value="Solve" id="solve_button"></input>
 </body>
 
 </html>
