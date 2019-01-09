@@ -4,6 +4,8 @@ use solver::index::{
   generic_corner_index, generic_corner_index_decode, generic_edge_index,
   generic_edge_index_decode, Index,
 };
+use solver::pruning::gen_prune_table;
+use solver::transition::gen_transition_table;
 
 /// Edges of the first block (DL, FL, BL).
 pub struct FBEdges(Face, Face, Face);
@@ -104,6 +106,17 @@ impl IDDFSInfo for FBInfo {
 }
 
 impl FBInfo {
+  pub fn new() -> Self {
+    let c = Cube::solved();
+    let fbe = FBEdges::default();
+    let e_table = gen_transition_table(&fbe);
+    let e_ptable = gen_prune_table(&e_table, 7, fbe.from_cube(&c));
+    let fbc = FBCorners::default();
+    let c_table = gen_transition_table(&fbc);
+    let c_ptable = gen_prune_table(&c_table, 4, fbc.from_cube(&c));
+    FBInfo(e_table, c_table, e_ptable, c_ptable)
+  }
+
   pub fn get_indexes(&self, c: &Cube) -> (FBEdges, FBCorners) {
     use cube::sticker_cube::CentrePos;
     let fbe = FBEdges(
@@ -131,8 +144,6 @@ mod tests {
   use cube::Move;
   use solver::iddfs::iddfs;
   use solver::index::exhaustive_index_check;
-  use solver::pruning::gen_prune_table;
-  use solver::transition::gen_transition_table;
 
   #[test]
   fn exhaustive_fbe() {
@@ -146,14 +157,7 @@ mod tests {
 
   #[test]
   fn basic_fb() {
-    let c = Cube::solved();
-    let fbe = FBEdges::default();
-    let e_table = gen_transition_table(&fbe);
-    let e_ptable = gen_prune_table(&e_table, 7, fbe.from_cube(&c));
-    let fbc = FBCorners::default();
-    let c_table = gen_transition_table(&fbc);
-    let c_ptable = gen_prune_table(&c_table, 4, fbc.from_cube(&c));
-    let info = FBInfo(e_table, c_table, e_ptable, c_ptable);
+    let info = FBInfo::new();
 
     let c = Cube::solved();
     let solved = iddfs(info.get_state(&c), &info, 0, &mut Vec::new());
