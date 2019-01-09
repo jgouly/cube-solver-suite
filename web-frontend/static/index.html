@@ -41,7 +41,7 @@
       })
     ).then(results => {
       wasm = results.instance;
-      let a = create_rust_string("TODO", wasm);
+      let a = create_rust_string("F", wasm);
       wasm.exports.solve_fb(a);
       wasm.exports.dealloc_rust_string(a);
       const str = get_stack_str(wasm);

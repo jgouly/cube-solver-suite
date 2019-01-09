@@ -10,5 +10,6 @@ crate-type = ["cdylib"]
 [dependencies]
 cube = { path = "../cube" }
 roux = { path = "../roux" }
+solver = { path = "../solver" }
 
 lazy_static = "1"
