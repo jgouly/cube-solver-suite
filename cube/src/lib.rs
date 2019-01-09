@@ -47,6 +47,12 @@ impl Face {
   }
 }
 
+impl std::fmt::Display for Face {
+  fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+    write!(f, "{:?}", self)
+  }
+}
+
 /// Represents a slice of the cube.
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Slice {
@@ -55,12 +61,25 @@ pub enum Slice {
   S,
 }
 
+impl std::fmt::Display for Slice {
+  fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+    write!(f, "{:?}", self)
+  }
+}
+
 /// Represents a rotation of the cube.
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Rotation {
   X,
   Y,
   Z,
+}
+
+impl std::fmt::Display for Rotation {
+  fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+    let rotations = ["x", "y", "z"];
+    write!(f, "{}", rotations[*self as usize])
+  }
 }
 
 /// Represents a move of the cube.
@@ -92,5 +111,22 @@ impl Move {
   /// This essentially compares the moves, but ignoring the amount field.
   pub fn is_same_movement(&self, m: &Move) -> bool {
     self.with_amount(0) == m.with_amount(0)
+  }
+}
+
+impl std::fmt::Display for Move {
+  fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+    let amounts = ["", "2", "'"];
+    match self {
+      Move::Face(face, amt) => {
+        write!(f, "{}{}", face, amounts[*amt as usize - 1])
+      }
+      Move::Slice(slice, amt) => {
+        write!(f, "{}{}", slice, amounts[*amt as usize - 1])
+      }
+      Move::Rotation(slice, amt) => {
+        write!(f, "{}{}", slice, amounts[*amt as usize - 1])
+      }
+    }
   }
 }

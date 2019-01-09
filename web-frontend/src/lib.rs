@@ -26,7 +26,7 @@ pub fn solve_fb(s: JSString) {
     if solved {
       let mut ret = String::new();
       for m in solution {
-        ret.push_str(&format!("{:?} ", m));
+        ret.push_str(&format!("{} ", m));
       }
       stack_push_str(&ret);
       break;
