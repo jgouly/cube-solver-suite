@@ -11,7 +11,7 @@
       let inner = document.createElement("div");
       solutions.forEach(s => {
         let d = document.createElement("div");
-        d.textContent = s;
+        d.textContent = s.dl + " (" + s.len + ") " + s.moves;
         inner.appendChild(d);
       });
       const results = document.getElementById("results");
