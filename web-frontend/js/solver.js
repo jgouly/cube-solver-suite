@@ -41,9 +41,10 @@ function create_rust_string(str, results) {
 }
 
 self.onmessage = function(msg) {
-  let scramble = create_rust_string(msg.data, wasm);
+  let scramble = create_rust_string(msg.data.scramble, wasm);
+  let orientations = msg.data.orientations;
   console.time("solve_fb");
-  wasm.exports.solve_fb(scramble);
+  wasm.exports.solve_fb(scramble, orientations);
   console.timeEnd("solve_fb");
   wasm.exports.dealloc_rust_string(scramble);
   self.postMessage(JSON.parse(get_stack_str(wasm)));

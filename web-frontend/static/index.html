@@ -12,6 +12,17 @@
       return a;
     }
 
+    function get_orientations() {
+      var boxes = document.querySelectorAll('input[name="orientation"]');
+      var val = 0;
+      boxes.forEach((b, i) => {
+        if (b.checked) {
+          val = val | (1 << i);
+        }
+      });
+      return val;
+    }
+
     var solver = new Worker(location.origin + '/web-frontend/js/solver.js');
 
     solver.onmessage = function(msg) {
@@ -32,7 +43,7 @@
     window.onload = function() {
       document.getElementById("solve_button").onclick = function() {
         let scramble = document.getElementById("scramble").value;
-        solver.postMessage(scramble);
+        solver.postMessage({scramble: scramble, orientations: get_orientations()});
       }
     }
   </script>
@@ -41,6 +52,31 @@
 <body>
   <input type="text" size="100" id="scramble"></input>
   <input type="button" value="Solve" id="solve_button"></input>
+  <br />
+  <input type="checkbox" name="orientation" checked="checked">UF</input>
+  <input type="checkbox" name="orientation" checked="checked">FU</input>
+  <input type="checkbox" name="orientation" checked="checked">UL</input>
+  <input type="checkbox" name="orientation" checked="checked">LU</input>
+  <input type="checkbox" name="orientation" checked="checked">UB</input>
+  <input type="checkbox" name="orientation" checked="checked">BU</input>
+  <input type="checkbox" name="orientation" checked="checked">UR</input>
+  <input type="checkbox" name="orientation" checked="checked">RU</input>
+  <input type="checkbox" name="orientation" checked="checked">DF</input>
+  <input type="checkbox" name="orientation" checked="checked">FD</input>
+  <input type="checkbox" name="orientation" checked="checked">DL</input>
+  <input type="checkbox" name="orientation" checked="checked">LD</input>
+  <input type="checkbox" name="orientation" checked="checked">DB</input>
+  <input type="checkbox" name="orientation" checked="checked">BD</input>
+  <input type="checkbox" name="orientation" checked="checked">DR</input>
+  <input type="checkbox" name="orientation" checked="checked">RD</input>
+  <input type="checkbox" name="orientation" checked="checked">FR</input>
+  <input type="checkbox" name="orientation" checked="checked">RF</input>
+  <input type="checkbox" name="orientation" checked="checked">FL</input>
+  <input type="checkbox" name="orientation" checked="checked">LF</input>
+  <input type="checkbox" name="orientation" checked="checked">BL</input>
+  <input type="checkbox" name="orientation" checked="checked">LB</input>
+  <input type="checkbox" name="orientation" checked="checked">BR</input>
+  <input type="checkbox" name="orientation" checked="checked">RB</input>
   <div id="results">
     <div></div>
   </div>

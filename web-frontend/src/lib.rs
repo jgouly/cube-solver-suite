@@ -20,8 +20,12 @@ lazy_static! {
   static ref FB_INFO: FBInfo = { FBInfo::new() };
 }
 
+fn skip_orientation(o: usize, orientations: u32) -> bool {
+  ((1 << o) & orientations) != 0
+}
+
 #[no_mangle]
-pub fn solve_fb(s: JSString) {
+pub fn solve_fb(s: JSString, orientations: u32) {
   let info = &*FB_INFO;
 
   let mut solutions = Vec::with_capacity(24);
@@ -30,7 +34,10 @@ pub fn solve_fb(s: JSString) {
   let scramble = parse_moves(&s.as_string()).unwrap();
   c.do_moves(&scramble);
 
-  for &o in cube::sticker_cube::EdgePos::natural_order() {
+  for &o in cube::sticker_cube::EdgePos::natural_order()
+    .iter()
+    .filter(|&&o| skip_orientation(o as usize, orientations))
+  {
     let mut c = c;
     c.do_moves(&roux::DL_ORIENTATIONS[o as usize]);
     let mut solution = Vec::with_capacity(10);
