@@ -47,12 +47,12 @@
     window.onload = function() {
       document.getElementById("solve_button").onclick = function() {
         let scramble = create_rust_string(document.getElementById("scramble").value, wasm);
+        console.time("solve_fb");
         wasm.exports.solve_fb(scramble);
+        console.timeEnd("solve_fb");
         wasm.exports.dealloc_rust_string(scramble);
-        for(var i = 0; i < 24; ++i) {
-          const str = get_stack_str(wasm);
-          console.log(str);
-        }
+        const str = JSON.parse(get_stack_str(wasm));
+        console.log(str);
       }
     }
   </script>

@@ -13,3 +13,4 @@ roux = { path = "../roux" }
 solver = { path = "../solver" }
 
 lazy_static = "1"
+miniserde = "0.1"
