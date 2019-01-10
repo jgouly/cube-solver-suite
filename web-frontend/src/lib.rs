@@ -17,7 +17,7 @@ lazy_static! {
 pub fn solve_fb(s: JSString) {
   let info = &*FB_INFO;
 
-  let mut solutions = Vec::new();
+  let mut solutions = Vec::with_capacity(24);
 
   let mut c = Cube::solved();
   let scramble = parse_moves(&s.as_string()).unwrap();
@@ -30,7 +30,10 @@ pub fn solve_fb(s: JSString) {
     for i in 0..10 {
       let solved = iddfs(info.get_state(&c), info, i, &mut solution);
       if solved {
-        let mut ret = String::new();
+        // A move is 1 or 2 characters, and a space between moves.
+        // So allocate 3 * i, for a rough estimate of the solution length.
+        let solution_len_estimate = 3 * (i + roux::DL_ORIENTATIONS[o].len());
+        let mut ret = String::with_capacity(solution_len_estimate);
         for m in roux::DL_ORIENTATIONS[o] {
           ret.push_str(&format!("{} ", m));
         }
