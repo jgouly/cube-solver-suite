@@ -4,14 +4,25 @@
 <head>
   <title>frontend</title>
   <script>
+    function get_algcubing_link(scramble, solution) {
+      let a = document.createElement("a");
+      let url_alg = solution.replace(/ /g, "_").replace(/'/g, "-");
+      let url_setup = scramble.replace(/ /g, "_").replace(/'/g, "-");
+      a.href = "https://alg.cubing.net/?alg=" + url_alg + "&setup=" + url_setup;
+      return a;
+    }
+
     var solver = new Worker(location.origin + '/web-frontend/js/solver.js');
 
     solver.onmessage = function(msg) {
       let solutions = msg.data;
+      const scramble = document.getElementById("scramble").value;
       let inner = document.createElement("div");
       solutions.forEach(s => {
         let d = document.createElement("div");
-        d.textContent = s.dl + " (" + s.len + ") " + s.moves;
+        let a = get_algcubing_link(scramble, s.moves);
+        a.textContent = s.dl + " (" + s.len + ") " + s.moves;
+        d.appendChild(a);
         inner.appendChild(d);
       });
       const results = document.getElementById("results");
