@@ -51,8 +51,15 @@
         wasm.exports.solve_fb(scramble);
         console.timeEnd("solve_fb");
         wasm.exports.dealloc_rust_string(scramble);
-        const str = JSON.parse(get_stack_str(wasm));
-        console.log(str);
+        const solutions = JSON.parse(get_stack_str(wasm));
+        let inner = document.createElement("div");
+        solutions.forEach(s => {
+          let d = document.createElement("div");
+          d.textContent = s;
+          inner.appendChild(d);
+        });
+        const results = document.getElementById("results");
+        results.replaceChild(inner, results.children[0]);
       }
     }
   </script>
@@ -61,6 +68,7 @@
 <body>
 <input type="text" size="100" id="scramble"></input>
 <input type="button" value="Solve" id="solve_button"></input>
+<div id="results"><div></div></div>
 </body>
 
 </html>

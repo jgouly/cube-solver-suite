@@ -31,9 +31,9 @@ pub fn solve_fb(s: JSString) {
       let solved = iddfs(info.get_state(&c), info, i, &mut solution);
       if solved {
         // A move is 1 or 2 characters, and a space between moves.
-        // So allocate 3 * i, for a rough estimate of the solution length.
-        let solution_len_estimate = 3 * (i + roux::DL_ORIENTATIONS[o].len());
-        let mut ret = String::with_capacity(solution_len_estimate);
+        // So allocate 3 * i, for the maximum solution length.
+        let solution_len_max = 3 * (i + roux::DL_ORIENTATIONS[o].len());
+        let mut ret = String::with_capacity(solution_len_max);
         for m in roux::DL_ORIENTATIONS[o] {
           ret.push_str(&format!("{} ", m));
         }
