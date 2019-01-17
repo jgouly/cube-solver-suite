@@ -1,5 +1,6 @@
 use cube::{Move, Rotation};
 
+pub mod cmll;
 pub mod first_block;
 
 macro_rules! r {
