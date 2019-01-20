@@ -30,10 +30,6 @@ pub fn iddfs<I: IDDFSInfo>(
     return info.is_solved(&state);
   }
 
-  if info.prune(&state, depth_remaining) {
-    return false;
-  }
-
   for (i, &m) in [
     Face(Face::U, 1),
     Face(Face::D, 1),
@@ -53,6 +49,11 @@ pub fn iddfs<I: IDDFSInfo>(
     let mut next = state;
     for n in 1..4 {
       next = info.transition(&next, i);
+
+      if info.prune(&next, depth_remaining - 1) {
+        continue;
+      }
+
       solution.push(m.with_amount(n));
       if iddfs::<I>(next, info, depth_remaining - 1, solution) {
         return true;
