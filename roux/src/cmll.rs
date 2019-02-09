@@ -80,11 +80,7 @@ impl IDDFSInfo for CMLLInfo {
       && sb_solved(&c)
   }
 
-  fn transition(
-    &self,
-    (c, cmll, fb): &Self::State,
-    m: usize,
-  ) -> Self::State {
+  fn transition(&self, (c, cmll, fb): &Self::State, m: usize) -> Self::State {
     let mut c = *c;
     // note: this matches the order in solver/src/iddfs.rs
     let moves = [
