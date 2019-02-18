@@ -5,10 +5,7 @@ use miniserde::{json, MiniSerialize};
 use roux::first_block::*;
 use solver::iddfs::iddfs;
 use solver::index::Index;
-
-mod interop;
-
-use crate::interop::*;
+use wasm_bindgen::prelude::*;
 
 #[derive(MiniSerialize)]
 struct FBSolution {
@@ -25,14 +22,14 @@ fn skip_orientation(o: usize, orientations: u32) -> bool {
   ((1 << o) & orientations) != 0
 }
 
-#[no_mangle]
-pub fn solve_fb(s: JSString, orientations: u32) {
+#[wasm_bindgen]
+pub fn solve_fb(s: String, orientations: u32) -> String {
   let info = &*FB_INFO;
 
   let mut solutions = Vec::with_capacity(24);
 
   let mut c = Cube::solved();
-  let scramble = parse_moves(&s.as_string()).unwrap();
+  let scramble = parse_moves(&s).unwrap();
   c.do_moves(&scramble);
 
   for &o in cube::sticker_cube::EdgePos::natural_order()
@@ -82,5 +79,5 @@ pub fn solve_fb(s: JSString, orientations: u32) {
   }
 
   solutions.sort_by_key(|a| a.len);
-  stack_push_str(&json::to_string(&solutions));
+  json::to_string(&solutions)
 }
